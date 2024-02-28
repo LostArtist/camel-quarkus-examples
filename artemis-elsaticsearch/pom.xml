@@ -147,11 +147,6 @@
     <build>
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.codehaus.gmaven</groupId>
-                    <artifactId>groovy-maven-plugin</artifactId>
-                    <version>${groovy-maven-plugin.version}</version>
-                </plugin>
 
                 <plugin>
                     <groupId>net.revelc.code.formatter</groupId>
@@ -210,6 +205,19 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                            <configuration>
+                                <systemPropertyVariables>
+                                    <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                                </systemPropertyVariables>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
 
                 <plugin>
@@ -290,85 +298,15 @@
                 </executions>
             </plugin>
 
-            <!-- Do I need this?
-
             <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>groovy-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>sync-k8s-resource-versions</id>
-                        <inherited>false</inherited>
-                        <goals>
-                            <goal>execute</goal>
-                        </goals>
-                        <phase>process-sources</phase>
-                        <configuration>
-                            <source>
-                                import java.util.regex.Matcher
-                                import java.util.regex.Pattern
-
-                                Pattern pattern = Pattern.compile("app.kubernetes.io/version: .*")
-
-                                ["kubernetes", "openshift"].each { k8sResource -&gt;
-                                    String sanitizedBasedir = project.basedir.path.replace('\\', '/')
-                                    File file = new File("${sanitizedBasedir}/src/main/kubernetes/${k8sResource}.yml")
-                                    String content = file.text
-                                    Matcher matcher = pattern.matcher(content)
-
-                                    if (matcher.find()) {
-                                        String updatedContent = matcher.replaceAll("app.kubernetes.io/version: ${project.version}")
-                                        if (updatedContent != content) {
-                                            log.info("Updating app.kubernetes.io/version label to ${project.version} in ${file.path}")
-                                            file.write(updatedContent)
-                                        }
-                                    }
-                                }
-                            </source>
-                        </configuration>
-                    </execution>
-                </executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
             </plugin>
-
-            -->
-
         </plugins>
     </build>
 
     <profiles>
-        <profile>
-            <id>kubernetes</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-                <property>
-                    <name>kubernetes</name>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>io.quarkus</groupId>
-                    <artifactId>quarkus-kubernetes</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>io.quarkus</groupId>
-                    <artifactId>quarkus-container-image-jib</artifactId>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>openshift</id>
-            <activation>
-                <property>
-                    <name>openshift</name>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>io.quarkus</groupId>
-                    <artifactId>quarkus-openshift</artifactId>
-                </dependency>
-            </dependencies>
-        </profile>
         <profile>
             <id>skip-testcontainers-tests</id>
             <activation>
