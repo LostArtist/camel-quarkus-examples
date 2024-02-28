@@ -23,10 +23,9 @@ public class Routes extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-
-        from("paho:devices/light?brokerUrl=tcp://localhost:1883")
-                .process("indexProcessing")
-                .to("elasticsearch://docker-cluster?operation=index");
+        from("paho:devices/light?brokerUrl=tcp://{{artemis.host}}:{{artemis.port.mqtt}}")
+                .process(new IndexProcessing())
+                .to("elasticsearch://docker-cluster?hostAddresses={{elasticsearch.host}}:{{elasticsearch.port.api.binary}}&operation=index");
 
         //        from("direct:search")
         //                .to("elasticsearch://cheese?operation=Search&indexName=heyyou");
