@@ -4,7 +4,8 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import org.acme.resource.CustomArtemisTestResource;
 import org.acme.resource.ElasticSearchTestResource;
-import org.apache.camel.test.junit5.params.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 @QuarkusIntegrationTest
 @QuarkusTestResource(CustomArtemisTestResource.class)
@@ -12,8 +13,9 @@ import org.apache.camel.test.junit5.params.Test;
 public class ElasticSearchIndexITCase {
 
     @Test
-    void testIndex() {
-        System.out.println("The test goes here");
+    public void testSomeSampleStuff() {
+        // TODO add test
+        Assertions.assertTrue(false, "You need to add tests");
     }
 
 }
