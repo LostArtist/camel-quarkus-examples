@@ -23,16 +23,22 @@ public class Routes extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-        from("paho:devices/light?brokerUrl=tcp://{{artemis.host}}:{{artemis.port.mqtt}}")
+        from("paho:devices")
                 .process(new IndexProcessing())
-                .to("elasticsearch://docker-cluster?hostAddresses={{elasticsearch.host}}:{{elasticsearch.port.api.binary}}&certificatePath={{elasticsearch.certificate}}&operation=index");
+                .log("toLog")
+                .to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{elasticsearch.host}}&operation=INDEX_OR_UPDATE&indexName=devices");
 
         //        from("direct:search")
         //                .to("elasticsearch://cheese?operation=Search&indexName=heyyou");
+        //&certificatePath={{elasticsearch.certificate}}
     }
 
     //exchange.getMessage().setHeader(ElasticsearchConstants.PARAM_INDEX_NAME, new IndexRequest.Builder<String>().index("light"));
     //exchange.getMessage().setHeader(ElasticsearchConstants.PARAM_OPERATION, ElasticsearchOperation.Index);
     //exchange.getMessage().setBody(new IndexRequest.Builder<String>().document("smth"));
+    //?brokerUrl=tcp://{{artemis.host}}:{{artemis.port.mqtt}}
+    //    {{elasticsearch.host}}:{{elasticsearch.port.api.binary}}
+    //    -Dartemis.host=localhost artemis.port.mqtt=1883  -Delasticsearch.host=localhost -Delasticsearch.port.api.binary=9300
+    //    ?hostAddresses={{elasticsearch.host}}:{{elasticsearch.port.api.binary}}?operation=Index
 
 }
