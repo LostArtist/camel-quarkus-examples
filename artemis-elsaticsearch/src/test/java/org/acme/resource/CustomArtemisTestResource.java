@@ -6,7 +6,7 @@ import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 
-// podman run -e AMQ_EXTRA_ARGS="--relax-jolokia" -e AMQ_USER=admin -e AMQ_PASSWORD=admin -p 61616:61616 -p 8161:8161 -p 1883:1883 quay.io/artemiscloud/activemq-artemis-broker
+//// podman run -e AMQ_EXTRA_ARGS="--relax-jolokia" -e AMQ_USER=admin -e AMQ_PASSWORD=admin -p 61616:61616 -p 8161:8161 -p 1883:1883 quay.io/artemiscloud/activemq-artemis-broker
 public class CustomArtemisTestResource implements QuarkusTestResourceLifecycleManager {
     private static final String IMAGE_NAME = "quay.io/artemiscloud/activemq-artemis-broker";
     private static final String AMQ_USER = "admin";
