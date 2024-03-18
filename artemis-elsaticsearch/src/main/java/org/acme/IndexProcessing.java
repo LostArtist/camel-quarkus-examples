@@ -43,7 +43,7 @@ public class IndexProcessing implements Processor {
         HashMap<String, String> map = new HashMap<>();
         map.put("new", "one");
 
-        RestClient restClient = RestClient.builder(new HttpHost("localhost", 9300, "http")).build();
+        RestClient restClient = RestClient.builder(new HttpHost("localhost", 9200, "http")).build();
 
         Request request = new Request("POST", "/");
         Response response = restClient.performRequest(request);
@@ -80,7 +80,6 @@ public class IndexProcessing implements Processor {
     }
 
     private JsonObject convertHttpEntityToJsonObject(String httpResponse) throws IOException {
-        // Jackson ObjectMapper
         ObjectMapper objectMapper = new ObjectMapper();
 
         // Convert JSON content to Map<String, Object>
