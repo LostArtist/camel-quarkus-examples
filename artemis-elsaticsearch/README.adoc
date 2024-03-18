@@ -9,12 +9,75 @@ transform it and load into ElasticSearch database
 TIP: Check the https://camel.apache.org/camel-quarkus/latest/first-steps.html[Camel Quarkus User guide] for prerequisites
 and other general information.
 
-== Start in the Development mode
+== Create network for Elasticsearch:
 
 [source,shell]
 ----
-$ mvn clean compile quarkus:dev
+$ podman network create elastic
 ----
 
-TIP: Please refer to the Development mode section of
-https://camel.apache.org/camel-quarkus/latest/first-steps.html#_development_mode[Camel Quarkus User guide] for more details.
+== Run the containers:
+
+=== Run the Artemis container:
+
+[source,shell]
+----
+$ podman run --rm -e AMQ_EXTRA_ARGS="--relax-jolokia" -e AMQ_USER=admin -e AMQ_PASSWORD=admin -p 61616:61616 -p 8161:8161 -p 1883:1883 quay.io/artemiscloud/activemq-artemis-broker
+----
+
+Now you can access Artemis on localhost:8161
+
+=== Run the Elasticsearch container:
+
+[source,shell]
+----
+$ podman run --rm --name elasticsearch --net elastic -p 9200:9200 -p 9300:9300 -it -m 4GB -e "discovery.type=single-node" -e "xpack.security.enabled=false" --name elasticsearch docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+----
+
+Now you can access Elasticsearch on localhost:9200
+
+=== Run the Kibana container:
+
+[source,shell]
+----
+$ podman run --rm --net elastic -p 5601:5601 --name kib01 docker.elastic.co/kibana/kibana:8.12.0
+----
+
+Now you can access kibana on localhost:5601
+
+== Start the quarkus application in jvm mode:
+
+[source,shell]
+----
+$ mvn clean package
+----
+
+[source,shell]
+----
+$ java -Dartemis.host=localhost -Dartemis.port.mqtt=1883  -Delasticsearch.host=localhost -Delasticsearch.port.api.binary=9200 -jar target/quarkus-app/quarkus-run.jar
+----
+
+== Send message from Artemis broker to Elasticsearch:
+
+Go to localhost:8161 => Artemis => addresses => devices => queues => multicast => camel-paho[...] => send message
+
+
+== Accessing container configuration when the container has already been launched:
+
+
+[source,shell]
+----
+$ podman exec -u 0 -it [ container_id ] /bin/bash
+----
+
+----
+root@d50503131fa5:/usr/share/elasticsearch# apt-get update
+----
+
+----
+root@d50503131fa5:/usr/share/elasticsearch# apt-get install nano
+----
+
+----
+root@d50503131fa5:/usr/share/elasticsearch# nano config/elasticsearch.yml
+----
