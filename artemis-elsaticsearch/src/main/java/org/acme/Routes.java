@@ -24,8 +24,14 @@ public class Routes extends RouteBuilder {
     @Override
     public void configure() throws Exception {
         from("paho:devices")
-                .process(new IndexProcessing())
-                .log("toLog")
+                // .process(new IndexProcessing())
+                //.log("toLog")
+                .log("Message before marshalling is ${body}")
+                // transform this to the proper Java object to avoid dealing with wrong string format
+                .unmarshal().json(Pojo.class)
+                // marshall properly to Json - mandatory as the component is using REST and JSON under the hood
+                .marshal().json()
+                .log("Message after marshalling is : ${body}")
                 .to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{elasticsearch.host}}&operation=INDEX_OR_UPDATE&indexName=devices");
 
         //        from("direct:search")
