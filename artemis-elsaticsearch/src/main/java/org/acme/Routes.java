@@ -15,10 +15,8 @@
  * limitations under the License.
  */
 
-
 package org.acme;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,24 +29,29 @@ import org.apache.http.entity.ContentType;
 public class Routes extends RouteBuilder {
 
     public void process(Exchange exchange) throws IOException {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
+
+        //get message from pojo class
         String body = exchange.getMessage().getBody(String.class);
         map.put("devices", body);
+
+        //convert map to json string
         String jsonString = new ObjectMapper().writeValueAsString(map);
+
+        //define content type
         exchange.getIn().setHeader(Exchange.CONTENT_TYPE, ContentType.APPLICATION_JSON);
+
+        //set json string message for the exchange
         exchange.getMessage().setBody(jsonString);
 
     }
 
     @Override
-    public void configure() throws Exception {
+    public void configure() {
         from("paho:devices")
                 .log("Message before marshalling is ${body}")
-                // transform this to the proper Java object to avoid dealing with wrong string format
-                //                .unmarshal().json(Pojo.class)
-                //                .setBody(constant("{'test':'again'}"))
                 .process(this::process)
-                .to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{elasticsearch.host}}&operation=INDEX_OR_UPDATE&indexName=items");
+                .to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{elasticsearch.host}}&operation=INDEX_OR_UPDATE&indexName=devices");
     }
 
 }
