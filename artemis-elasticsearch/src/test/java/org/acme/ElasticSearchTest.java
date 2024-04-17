@@ -26,5 +26,4 @@ import org.acme.resource.ElasticSearchTestResource;
 @QuarkusTestResource(CustomArtemisTestResource.class)
 @QuarkusTestResource(ElasticSearchTestResource.class)
 public class ElasticSearchTest {
-
 }
