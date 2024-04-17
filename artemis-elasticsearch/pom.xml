@@ -22,13 +22,13 @@
 
     <artifactId>camel-quarkus-examples-artemis-elasticsearch</artifactId>
     <groupId>org.apache.camel.quarkus.examples</groupId>
-    <version>3.7.0-SNAPSHOT</version>
+    <version>3.9.0</version>
 
     <name>Camel Quarkus :: Examples :: Artemis ElasticSearch</name>
     <description>Camel Quarkus Example :: Artemis ElasticSearch</description>
 
     <properties>
-        <quarkus.platform.version>3.8.1</quarkus.platform.version>
+        <quarkus.platform.version>3.9.1</quarkus.platform.version>
         <camel-quarkus.platform.version>${quarkus.platform.version}</camel-quarkus.platform.version>
 
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
@@ -81,6 +81,10 @@
         <dependency>
             <groupId>org.apache.camel.quarkus</groupId>
             <artifactId>camel-quarkus-bean</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel.quarkus</groupId>
+            <artifactId>camel-quarkus-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.camel.quarkus</groupId>
@@ -284,9 +288,14 @@
                         <id>build</id>
                         <goals>
                             <goal>build</goal>
+                            <goal>generate-code</goal>
+                            <goal>generate-code-tests</goal>
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <workingDir>${project.basedir}</workingDir>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -326,6 +335,37 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>native</id>
+            <activation>
+                <property>
+                    <name>native</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                                <configuration>
+                                    <systemPropertyVariables>
+                                        <quarkus.package.type>${quarkus.package.type}</quarkus.package.type>
+                                    </systemPropertyVariables>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <properties>
+                <quarkus.package.type>native</quarkus.package.type>
+            </properties>
+        </profile>
         <profile>
             <id>skip-testcontainers-tests</id>
             <activation>
