@@ -17,13 +17,9 @@
 
 package org.acme.resource;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
@@ -34,38 +30,45 @@ public class ElasticSearchTestResource implements QuarkusTestResourceLifecycleMa
     private static final String IMAGE_NAME = "docker.elastic.co/elasticsearch/elasticsearch:8.12.0";
     private static final String ELASTIC_USER_NAME = "elastic";
     private static final String ELASTIC_PASSWORD = "elastic";
+    private static final String ELASTIC_SECURITY = "\"xpack.security.enabled\"";
+    private static final String ELASTIC_DISCOVERY_TYPE = "\"discovery.type\"";
     private ElasticsearchContainer container;
     private Path certPath;
 
     @Override
     public Map<String, String> start() {
         container = new ElasticsearchContainer(DockerImageName.parse(IMAGE_NAME))
-                .withPassword(ELASTIC_PASSWORD);
+                .withExposedPorts(9200, 9300)
+                .withEnv(ELASTIC_SECURITY, "\"false\"")
+                .withEnv(ELASTIC_DISCOVERY_TYPE, "\"single-node\"");
+        //.withPassword(ELASTIC_PASSWORD);
         container.setWaitStrategy(
                 new LogMessageWaitStrategy()
                         .withRegEx(".*(\"message\":\\s?\"started[\\s?|\"].*|] started\n$)")
                         .withStartupTimeout(Duration.ofSeconds(90)));
 
-        container.caCertAsBytes().ifPresent(content -> {
-            try {
-                certPath = Files.createTempFile("http_ca", ".crt");
-                Files.write(certPath, content);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        //        container.caCertAsBytes().ifPresent(content -> {
+        //            try {
+        //                certPath = Files.createTempFile("http_ca", ".crt");
+        //                Files.write(certPath, content);
+        //            } catch (IOException e) {
+        //                throw new RuntimeException(e);
+        //            }
+        //        });
 
         container.start();
 
-        final String certPathStr = Optional.ofNullable(certPath).map(Objects::toString).orElse("");
+        //final String certPathStr = Optional.ofNullable(certPath).map(Objects::toString).orElse("");
 
         return Map.of(
                 "elasticsearch.host", container.getHost(),
                 "elasticsearch.port.api.http", String.valueOf(container.getMappedPort(9200)),
                 "elasticsearch.port.api.binary", String.valueOf(container.getMappedPort(9300)),
-                "elasticsearch.username", ELASTIC_USER_NAME,
-                "elasticsearch.password", ELASTIC_PASSWORD,
-                "elasticsearch.certificate", certPathStr);
+                "elasticsearch.xpack.security.enabled", "false",
+                "discovery.type", "single-node");
+        //"elasticsearch.username", ELASTIC_USER_NAME,
+        //"elasticsearch.password", ELASTIC_PASSWORD);
+        // "elasticsearch.certificate", certPathStr);
 
     }
 
