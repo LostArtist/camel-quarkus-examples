@@ -30,8 +30,8 @@ public class ElasticSearchTestResource implements QuarkusTestResourceLifecycleMa
     private static final String IMAGE_NAME = "docker.elastic.co/elasticsearch/elasticsearch:8.12.0";
     private static final String ELASTIC_USER_NAME = "elastic";
     private static final String ELASTIC_PASSWORD = "elastic";
-    private static final String ELASTIC_SECURITY = "\"xpack.security.enabled\"";
-    private static final String ELASTIC_DISCOVERY_TYPE = "\"discovery.type\"";
+    private static final String ELASTIC_SECURITY = "xpack.security.enabled";
+    private static final String ELASTIC_DISCOVERY_TYPE = "discovery.type";
     private ElasticsearchContainer container;
     private Path certPath;
 
