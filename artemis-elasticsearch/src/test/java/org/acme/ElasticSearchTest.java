@@ -21,9 +21,16 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import org.acme.resource.CustomArtemisTestResource;
 import org.acme.resource.ElasticSearchTestResource;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @QuarkusTestResource(CustomArtemisTestResource.class)
 @QuarkusTestResource(ElasticSearchTestResource.class)
 public class ElasticSearchTest {
+
+    @Test
+    public void test() {
+        Assertions.assertTrue(true, "Test");
+    }
 }

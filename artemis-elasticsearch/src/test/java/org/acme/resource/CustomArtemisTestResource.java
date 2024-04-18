@@ -27,6 +27,7 @@ public class CustomArtemisTestResource implements QuarkusTestResourceLifecycleMa
     private static final String IMAGE_NAME = "quay.io/artemiscloud/activemq-artemis-broker";
     private static final String AMQ_USER = "admin";
     private static final String AMQ_PASSWORD = "admin";
+    private static final String AMQ_JOLOKIA = "\"--relax-jolokia\"";
     private GenericContainer<?> container;
 
     @Override
@@ -34,8 +35,10 @@ public class CustomArtemisTestResource implements QuarkusTestResourceLifecycleMa
         container = new GenericContainer<>(DockerImageName.parse(IMAGE_NAME))
                 .withExposedPorts(61616, 1883, 8161)
                 .withEnv("AMQ_USER", AMQ_USER)
-                .withEnv("AMQ_PASSWORD", AMQ_PASSWORD);
+                .withEnv("AMQ_PASSWORD", AMQ_PASSWORD)
+                .withEnv("AMQ_EXTRA_ARGS", AMQ_JOLOKIA);
 
+        //container.addEnv("AMQ_EXTRA_ARGS", AMQ_JOLOKIA);
         container.start();
 
         return Map.of(
