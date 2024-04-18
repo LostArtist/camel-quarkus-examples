@@ -23,8 +23,8 @@ import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 
-public class CustomArtemisTestResource implements QuarkusTestResourceLifecycleManager {
-    private static final String IMAGE_NAME = "quay.io/artemiscloud/activemq-artemis-broker";
+public class CustomPahoTestResource implements QuarkusTestResourceLifecycleManager {
+    private static final String IMAGE_NAME = "quay.io/artemiscloud/activemq-artemis-broker:latest";
     private static final String AMQ_USER = "admin";
     private static final String AMQ_PASSWORD = "admin";
     private static final String AMQ_JOLOKIA = "--relax-jolokia";
@@ -38,7 +38,6 @@ public class CustomArtemisTestResource implements QuarkusTestResourceLifecycleMa
                 .withEnv("AMQ_PASSWORD", AMQ_PASSWORD)
                 .withEnv("AMQ_EXTRA_ARGS", AMQ_JOLOKIA);
 
-        //container.addEnv("AMQ_EXTRA_ARGS", AMQ_JOLOKIA);
         container.start();
 
         return Map.of(
