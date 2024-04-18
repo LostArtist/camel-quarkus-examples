@@ -119,21 +119,6 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
-        <!-- Messaging -->
-        <dependency>
-            <groupId>org.apache.camel.quarkus</groupId>
-            <artifactId>camel-quarkus-jms</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkiverse.messaginghub</groupId>
-            <artifactId>quarkus-pooled-jms</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkiverse.artemis</groupId>
-            <artifactId>quarkus-artemis-jms</artifactId>
-            <version>${quarkus-artemis-jms.version}</version>
-        </dependency>
-
         <!-- Test -->
         <dependency>
             <groupId>io.quarkus</groupId>
