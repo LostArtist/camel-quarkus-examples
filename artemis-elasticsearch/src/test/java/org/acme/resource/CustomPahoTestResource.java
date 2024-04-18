@@ -27,7 +27,7 @@ public class CustomArtemisTestResource implements QuarkusTestResourceLifecycleMa
     private static final String IMAGE_NAME = "quay.io/artemiscloud/activemq-artemis-broker";
     private static final String AMQ_USER = "admin";
     private static final String AMQ_PASSWORD = "admin";
-    private static final String AMQ_JOLOKIA = "\"--relax-jolokia\"";
+    private static final String AMQ_JOLOKIA = "--relax-jolokia";
     private GenericContainer<?> container;
 
     @Override
@@ -42,11 +42,9 @@ public class CustomArtemisTestResource implements QuarkusTestResourceLifecycleMa
         container.start();
 
         return Map.of(
-                "artemis.host", container.getHost(),
-                "artemis.admin.http", String.valueOf(container.getMappedPort(8161)),
-                "artemis.port.mqtt", String.valueOf(container.getMappedPort(1883)),
-                "artemis.admin.username", AMQ_USER,
-                "artemis.admin.password", AMQ_PASSWORD);
+                "camel.component.paho.brokerUrl",
+                "tcp://" + container.getHost() + ":" + container.getMappedPort(1883));
+
     }
 
     @Override
