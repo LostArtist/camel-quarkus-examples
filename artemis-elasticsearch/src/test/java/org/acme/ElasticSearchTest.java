@@ -21,7 +21,6 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import org.acme.resource.CustomPahoTestResource;
 import org.acme.resource.ElasticSearchTestResource;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
@@ -30,7 +29,7 @@ import org.junit.jupiter.api.Test;
 public class ElasticSearchTest {
 
     @Test
-    public void test() {
-        Assertions.assertTrue(true, "Test");
+    public void baseTest() {
+
     }
 }
