@@ -16,14 +16,14 @@ In order to send a message from Artemis Broker to Elasticsearch you need to star
 
 2) Elasticsearch - database that stores your data.
 
-You can also use docker instead of podman for all the steps below.
+You can also use podman instead of docker for all the steps below.
 
 
 == Create network for Elasticsearch:
 
 [source,shell]
 ----
-podman network create elastic
+docker network create elastic
 ----
 
 == Run the containers:
@@ -32,7 +32,7 @@ podman network create elastic
 
 [source,shell]
 ----
-podman run -d --rm -e AMQ_EXTRA_ARGS="--relax-jolokia" -e AMQ_USER=admin -e AMQ_PASSWORD=admin -p 61616:61616 -p 8161:8161 -p 1883:1883 --name artemis quay.io/artemiscloud/activemq-artemis-broker
+docker run -d --rm -e AMQ_EXTRA_ARGS="--relax-jolokia" -e AMQ_USER=admin -e AMQ_PASSWORD=admin -p 61616:61616 -p 8161:8161 -p 1883:1883 --name artemis quay.io/artemiscloud/activemq-artemis-broker:1.0.26
 ----
 
 Now you can access Artemis on localhost:8161
@@ -41,7 +41,7 @@ Now you can access Artemis on localhost:8161
 
 [source,shell]
 ----
-podman run -d --rm --name elasticsearch --net elastic -p 9200:9200 -p 9300:9300 -it -m 4GB -e "discovery.type=single-node" -e "xpack.security.enabled=false" --name elasticsearch docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+docker run -d --rm --name elasticsearch --net elastic -p 9200:9200 -p 9300:9300 -it -m 4GB -e "discovery.type=single-node" -e "xpack.security.enabled=false" --name elasticsearch docker.elastic.co/elasticsearch/elasticsearch:8.12.0
 ----
 
 Now you can access Elasticsearch on localhost:9200
@@ -64,7 +64,7 @@ java -Dartemis.host=localhost -Dartemis.port.mqtt=1883  -Delasticsearch.host=loc
 
 [source, shell]
 ----
-mvn -Dartemis.host=localhost -Dartemis.port.mqtt=1883  -Delasticsearch.host=localhost -Delasticsearch.port.api.binary=9300 clean verify quarkus:dev
+mvn -Dartemis.host=localhost -Dartemis.port.mqtt=1883  -Delasticsearch.host=localhost -Delasticsearch.port.api.binary=9200 clean verify quarkus:dev
 
 ----
 
@@ -72,7 +72,7 @@ mvn -Dartemis.host=localhost -Dartemis.port.mqtt=1883  -Delasticsearch.host=loca
 
 === Send from Artemis Broker:
 ----
-podman exec -it artemis broker/bin/artemis producer --destination topic://devices --message-count 10 --message="Hello world"
+docker exec -it artemis broker/bin/artemis producer --destination topic://devices --message-count 10 --message="Hello world"
 ----
 
 
@@ -89,7 +89,7 @@ curl -X GET "localhost:9200/devices/_msearch?pretty" -H 'Content-Type: applicati
 == Stop the containers:
 
 ----
-podman stop kibana
-podman stop elasticsearch
-podman stop artemis
+docker stop kibana
+docker stop elasticsearch
+docker stop artemis
 ----

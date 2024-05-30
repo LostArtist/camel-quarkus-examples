@@ -17,11 +17,22 @@
 
 package org.acme;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.parsing.Parser;
 import org.acme.resource.CustomPahoTestResource;
 import org.acme.resource.ElasticSearchTestResource;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.is;
 
 @QuarkusTest
 @QuarkusTestResource(CustomPahoTestResource.class)
@@ -29,7 +40,27 @@ import org.junit.jupiter.api.Test;
 public class ElasticSearchTest {
 
     @Test
-    public void baseTest() {
+    public void baseTest() throws IOException {
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        Map<String, String> map = new HashMap<>();
+
+        map.put("devices", "Hey you");
+
+        String jsonString = mapper.writeValueAsString(map);
+
+        RestAssured.registerParser("text/plain", Parser.JSON);
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(jsonString)
+                .when()
+                .post("/devices")
+                .then()
+                .statusCode(200)
+                .body("devices", is("Hey you"));
 
     }
 }

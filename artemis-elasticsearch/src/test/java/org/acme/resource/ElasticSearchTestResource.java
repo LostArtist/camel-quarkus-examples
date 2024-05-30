@@ -21,31 +21,32 @@ import java.time.Duration;
 import java.util.Map;
 
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
+import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.utility.DockerImageName;
 
 public class ElasticSearchTestResource implements QuarkusTestResourceLifecycleManager {
     private static final String IMAGE_NAME = "docker.elastic.co/elasticsearch/elasticsearch:8.12.0";
-    private static final String ELASTIC_SECURITY = "xpack.security.enabled";
-    private static final String ELASTIC_DISCOVERY_TYPE = "discovery.type";
     private ElasticsearchContainer container;
 
     @Override
     public Map<String, String> start() {
         container = new ElasticsearchContainer(DockerImageName.parse(IMAGE_NAME))
                 .withExposedPorts(9200, 9300)
-                .withEnv(ELASTIC_SECURITY, "\"false\"")
-                .withEnv(ELASTIC_DISCOVERY_TYPE, "\"single-node\"");
+                .withEnv("discovery.type", "single-node")
+                .withEnv("xpack.security.enabled", "false");
+
+
         container.setWaitStrategy(
                 new LogMessageWaitStrategy()
                         .withRegEx(".*(\"message\":\\s?\"started[\\s?|\"].*|] started\n$)")
-                        .withStartupTimeout(Duration.ofSeconds(90)));
+                        .withStartupTimeout(Duration.ofSeconds(60)));
 
         container.start();
 
         return Map.of(
-                "elasticsearch.host", container.getHost());
+                "camel.component.elasticsearch-rest-client.host-addresses", "http://" + container.getHost() + ":" + container.getMappedPort(9200));
 
     }
 

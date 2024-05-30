@@ -24,7 +24,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 
 public class CustomPahoTestResource implements QuarkusTestResourceLifecycleManager {
-    private static final String IMAGE_NAME = "quay.io/artemiscloud/activemq-artemis-broker:latest";
+    private static final String IMAGE_NAME = "quay.io/artemiscloud/activemq-artemis-broker:1.0.26";
     private static final String AMQ_USER = "admin";
     private static final String AMQ_PASSWORD = "admin";
     private static final String AMQ_JOLOKIA = "--relax-jolokia";
@@ -33,21 +33,26 @@ public class CustomPahoTestResource implements QuarkusTestResourceLifecycleManag
     @Override
     public Map<String, String> start() {
         container = new GenericContainer<>(DockerImageName.parse(IMAGE_NAME))
-                .withExposedPorts(61616, 1883, 8161)
+                .withExposedPorts(61616, 8161, 1883)
                 .withEnv("AMQ_USER", AMQ_USER)
                 .withEnv("AMQ_PASSWORD", AMQ_PASSWORD)
                 .withEnv("AMQ_EXTRA_ARGS", AMQ_JOLOKIA);
+        //.withPrivilegedMode(true);
 
         container.start();
 
         return Map.of(
-                "camel.component.paho.brokerUrl",
-                "tcp://" + container.getHost() + ":" + container.getMappedPort(1883));
+                //                "artemis.host", container.getHost(),
+                //                "artemis.admin.http", "http://" + container.getHost() + ":" + container.getMappedPort(8161),
+                //                "artemis.port.mqtt", String.valueOf(container.getMappedPort(1883)),
+                "camel.component.paho.brokerUrl", "tcp://" + container.getHost() + ":" + container.getMappedPort(1883));
 
     }
 
     @Override
     public void stop() {
-
+        if (container != null) {
+            container.stop();
+        }
     }
 }
