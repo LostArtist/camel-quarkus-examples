@@ -21,22 +21,23 @@ import java.time.Duration;
 import java.util.Map;
 
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
-import org.testcontainers.containers.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.utility.DockerImageName;
 
 public class ElasticSearchTestResource implements QuarkusTestResourceLifecycleManager {
+    private static final Logger LOG = LoggerFactory.getLogger(ElasticSearchTestResource.class);
+
     private static final String IMAGE_NAME = "docker.elastic.co/elasticsearch/elasticsearch:8.12.0";
     private ElasticsearchContainer container;
 
     @Override
     public Map<String, String> start() {
         container = new ElasticsearchContainer(DockerImageName.parse(IMAGE_NAME))
-                .withExposedPorts(9200, 9300)
                 .withEnv("discovery.type", "single-node")
                 .withEnv("xpack.security.enabled", "false");
-
 
         container.setWaitStrategy(
                 new LogMessageWaitStrategy()
@@ -45,9 +46,12 @@ public class ElasticSearchTestResource implements QuarkusTestResourceLifecycleMa
 
         container.start();
 
-        return Map.of(
-                "camel.component.elasticsearch-rest-client.host-addresses", "http://" + container.getHost() + ":" + container.getMappedPort(9200));
+        String address = container.getHttpHostAddress();
+        LOG.debug("Connecting to {}", address);
 
+        return Map.of(
+                "elasticsearch.host",
+                address);
     }
 
     @Override
