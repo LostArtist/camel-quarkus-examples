@@ -28,30 +28,64 @@ import org.apache.http.entity.ContentType;
 
 public class Routes extends RouteBuilder {
 
+    private final ObjectMapper mapper = new ObjectMapper();
+
     public void process(Exchange exchange) throws IOException {
         Map<String, String> map = new HashMap<>();
 
         //get message from pojo class
         String body = exchange.getMessage().getBody(String.class);
+        //System.out.println(body);
         map.put("devices", body);
 
         //convert map to json string
-        String jsonString = new ObjectMapper().writeValueAsString(map);
-
+        String jsonString1 = mapper.writeValueAsString(map);
+        //String jsonString = exchange.getIn().getBody(String.class);
+        //        System.out.println("MSG1" + jsonString1);
+        //        System.out.println("MSG2" + jsonString);
         //define content type
         exchange.getIn().setHeader(Exchange.CONTENT_TYPE, ContentType.APPLICATION_JSON);
 
         //set json string message for the exchange
-        exchange.getMessage().setBody(jsonString);
+        exchange.getMessage().setBody(body);
 
     }
 
     @Override
     public void configure() {
+
+        rest()
+                .produces("application/json")
+                .post("/devices")
+                .to("direct:devices")
+                .get("/devices").to("direct:getDevices");
+
+        //                        .to("direct:getDevices");
+        //        from("direct:start")
+        //                //.setBody(simple("Hello World"))
+        //                .process(this::process)
+        //                .to("paho:devices");
+
+        //.to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{elasticsearch.host}}&operation=GET_BY_ID&indexName=devices");
+        from("direct:devices")
+                .to("paho:devices");
+
         from("paho:devices")
                 .log("Message before marshalling is ${body}")
+                .id("devices")
+                //                .process(this::process)
+                //.marshal().json()
+                //.convertBodyTo(JSObject.class)
                 .process(this::process)
-                .to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{elasticsearch.host}}&operation=INDEX_OR_UPDATE&indexName=devices");
+                .to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{camel.component.elasticsearch-rest-client.host-addresses}}&operation=INDEX_OR_UPDATE&indexName=devices");
+
+        //        from("direct:start")
+        //                .process(this::process)
+        //                .to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{elasticsearch.host}}&operation=INDEX_OR_UPDATE&indexName=devices");
+
+        from("direct:getDevices")
+                //                        .id("devices")
+                .to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{camel.component.elasticsearch-rest-client.host-addresses}}&operation=GET_BY_ID&indexName=devices");
     }
 
 }
