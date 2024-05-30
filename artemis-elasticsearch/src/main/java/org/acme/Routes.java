@@ -68,11 +68,12 @@ public class Routes extends RouteBuilder {
 
         //.to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{elasticsearch.host}}&operation=GET_BY_ID&indexName=devices");
         from("direct:devices")
+                .routeId("direct-devices")
                 .to("paho:devices");
 
         from("paho:devices")
+                .routeId("paho-devices")
                 .log("Message before marshalling is ${body}")
-                .id("devices")
                 //                .process(this::process)
                 //.marshal().json()
                 //.convertBodyTo(JSObject.class)
@@ -84,6 +85,7 @@ public class Routes extends RouteBuilder {
         //                .to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{elasticsearch.host}}&operation=INDEX_OR_UPDATE&indexName=devices");
 
         from("direct:getDevices")
+                .routeId("get-devices")
                 //                        .id("devices")
                 .to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{camel.component.elasticsearch-rest-client.host-addresses}}&operation=GET_BY_ID&indexName=devices");
     }
