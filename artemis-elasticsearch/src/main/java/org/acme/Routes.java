@@ -24,11 +24,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.builder.endpoint.dsl.ReactiveStreamsEndpointBuilderFactory;
-import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
 
 public class Routes extends RouteBuilder {
 
@@ -36,7 +32,6 @@ public class Routes extends RouteBuilder {
 
     public void process(Exchange exchange) throws IOException {
 
-        //RestClientBuilder client = RestClient.builder(new HttpHost("localhost", 9200, "http"));
         Map<String, String> map = new HashMap<>();
 
         //get message from pojo class
@@ -46,9 +41,7 @@ public class Routes extends RouteBuilder {
 
         //convert map to json string
         String jsonString1 = mapper.writeValueAsString(map);
-        //String jsonString = exchange.getIn().getBody(String.class);
-        //        System.out.println("MSG1" + jsonString1);
-        //        System.out.println("MSG2" + jsonString);
+
         //define content type
         exchange.getIn().setHeader(Exchange.CONTENT_TYPE, ContentType.APPLICATION_JSON);
 

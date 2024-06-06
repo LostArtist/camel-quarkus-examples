@@ -54,9 +54,6 @@ public class ElasticSearchTestResource implements QuarkusTestResourceLifecycleMa
         String address = container.getHttpHostAddress();
         LOG.debug("Connecting to {}", address);
 
-        RestClientBuilder client = RestClient.builder(new HttpHost("localhost", container.getMappedPort(9200), "http"));
-        client.build();
-
         return Map.of(
                 "elasticsearch.host",
                 address);
