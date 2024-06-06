@@ -24,13 +24,19 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.builder.endpoint.dsl.ReactiveStreamsEndpointBuilderFactory;
+import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 
 public class Routes extends RouteBuilder {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
     public void process(Exchange exchange) throws IOException {
+
+        //RestClientBuilder client = RestClient.builder(new HttpHost("localhost", 9200, "http"));
         Map<String, String> map = new HashMap<>();
 
         //get message from pojo class
@@ -84,10 +90,10 @@ public class Routes extends RouteBuilder {
         //                .process(this::process)
         //                .to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{elasticsearch.host}}&operation=INDEX_OR_UPDATE&indexName=devices");
 
-        from("direct:getDevices")
-                .routeId("get-devices")
-                //                        .id("devices")
-                .to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{elasticsearch.host}}&operation=GET_BY_ID&indexName=devices");
+//        from("direct:getDevices")
+//                .routeId("get-devices")
+//                //                        .id("devices")
+//                .to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{elasticsearch.host}}&operation=SEARCH&indexName=devices");
     }
 
 }

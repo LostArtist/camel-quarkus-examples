@@ -21,6 +21,9 @@ import java.time.Duration;
 import java.util.Map;
 
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
@@ -35,7 +38,9 @@ public class ElasticSearchTestResource implements QuarkusTestResourceLifecycleMa
 
     @Override
     public Map<String, String> start() {
+
         container = new ElasticsearchContainer(DockerImageName.parse(IMAGE_NAME))
+                .withExposedPorts(9200)
                 .withEnv("discovery.type", "single-node")
                 .withEnv("xpack.security.enabled", "false");
 
@@ -48,6 +53,9 @@ public class ElasticSearchTestResource implements QuarkusTestResourceLifecycleMa
 
         String address = container.getHttpHostAddress();
         LOG.debug("Connecting to {}", address);
+
+        RestClientBuilder client = RestClient.builder(new HttpHost("localhost", container.getMappedPort(9200), "http"));
+        client.build();
 
         return Map.of(
                 "elasticsearch.host",
