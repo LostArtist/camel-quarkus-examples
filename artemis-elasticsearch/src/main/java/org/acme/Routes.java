@@ -24,6 +24,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.spi.ShutdownStrategy;
 import org.apache.http.entity.ContentType;
 
 public class Routes extends RouteBuilder {
@@ -77,16 +78,16 @@ public class Routes extends RouteBuilder {
                 //.marshal().json()
                 //.convertBodyTo(JSObject.class)
                 .process(this::process)
-                    .to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{elasticsearch.host}}&operation=INDEX_OR_UPDATE&indexName=devices");
+                    .to("elasticsearch-rest-client:docker-cluster?autowiredEnabled=false&hostAddressesList={{elasticsearch.host}}&operation=INDEX_OR_UPDATE&indexName=devices");
 
         //        from("direct:start")
         //                .process(this::process)
         //                .to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{elasticsearch.host}}&operation=INDEX_OR_UPDATE&indexName=devices");
 
-//        from("direct:getDevices")
-//                .routeId("get-devices")
-//                //                        .id("devices")
-//                .to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{elasticsearch.host}}&operation=SEARCH&indexName=devices");
+        from("direct:getDevices")
+                .routeId("get-devices")
+                //                        .id("devices")
+                .to("elasticsearch-rest-client:docker-cluster?autowiredEnabled=false&hostAddressesList={{elasticsearch.host}}&operation=SEARCH&indexName=devices");
     }
 
 }
