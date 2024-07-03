@@ -24,7 +24,6 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.spi.ShutdownStrategy;
 import org.apache.http.entity.ContentType;
 
 public class Routes extends RouteBuilder {
@@ -47,7 +46,7 @@ public class Routes extends RouteBuilder {
         exchange.getIn().setHeader(Exchange.CONTENT_TYPE, ContentType.APPLICATION_JSON);
 
         //set json string message for the exchange
-        exchange.getMessage().setBody(body);
+        exchange.getMessage().setBody(jsonString1);
 
     }
 
@@ -60,13 +59,6 @@ public class Routes extends RouteBuilder {
                 .to("direct:devices")
                 .get("/devices").to("direct:getDevices");
 
-        //                        .to("direct:getDevices");
-        //        from("direct:start")
-        //                //.setBody(simple("Hello World"))
-        //                .process(this::process)
-        //                .to("paho:devices");
-
-        //.to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{elasticsearch.host}}&operation=GET_BY_ID&indexName=devices");
         from("direct:devices")
                 .routeId("direct-devices")
                 .to("paho:devices");
@@ -74,19 +66,11 @@ public class Routes extends RouteBuilder {
         from("paho:devices")
                 .routeId("paho-devices")
                 .log("Message before marshalling is ${body}")
-                //                .process(this::process)
-                //.marshal().json()
-                //.convertBodyTo(JSObject.class)
                 .process(this::process)
-                    .to("elasticsearch-rest-client:docker-cluster?autowiredEnabled=false&hostAddressesList={{elasticsearch.host}}&operation=INDEX_OR_UPDATE&indexName=devices");
-
-        //        from("direct:start")
-        //                .process(this::process)
-        //                .to("elasticsearch-rest-client:docker-cluster?hostAddressesList={{elasticsearch.host}}&operation=INDEX_OR_UPDATE&indexName=devices");
+                .to("elasticsearch-rest-client:docker-cluster?autowiredEnabled=false&hostAddressesList={{elasticsearch.host}}&operation=INDEX_OR_UPDATE&indexName=devices");
 
         from("direct:getDevices")
                 .routeId("get-devices")
-                //                        .id("devices")
                 .to("elasticsearch-rest-client:docker-cluster?autowiredEnabled=false&hostAddressesList={{elasticsearch.host}}&operation=SEARCH&indexName=devices");
     }
 
