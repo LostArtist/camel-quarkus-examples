@@ -57,15 +57,14 @@ mvn clean package
 
 [source,shell]
 ----
-java -Dartemis.host=localhost -Dartemis.port.mqtt=1883  -Delasticsearch.host=localhost -Delasticsearch.port.api.binary=9200 -jar target/quarkus-app/quarkus-run.jar
+java -Delasticsearch.host=localhost:9200 -jar target/quarkus-app/quarkus-run.jar
 ----
 
 === In development mode:
 
 [source, shell]
 ----
-mvn -Dartemis.host=localhost -Dartemis.port.mqtt=1883  -Delasticsearch.host=localhost -Delasticsearch.port.api.binary=9200 clean verify quarkus:dev
-
+mvn clean verify quarkus:dev
 ----
 
 == Send and retrieve messages:
